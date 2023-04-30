@@ -7,7 +7,7 @@ Official repo of my compp module project. It requires [this hugging-face space](
 3. Select the **humanImageTo3D.py** file you previously downloaded.
 4. Enable the add-on by checking its checkbox
 
- You should now see the **Create human AI** tab on the right hand side of the 3D view port, if not, press **N** to see the side-bar it.
+ You should now see the **Create human AI** tab on the right-hand side of the 3D view port, if not, press **N** to see the side-bar it.
 
 ## Usage
 
@@ -20,16 +20,16 @@ After the processing is done, you will have a 3D model of your image inside of B
 ## Process
 
 ### Ideation
-My fisrt idea was to find some sort of AI to create audio. I didn't find any good AI I wanted to use. But then, randomly while being on reddit, I stumbled upon [this](https://www.reddit.com/r/blender/comments/11jedrn/using_pifuhd_ai_to_generate_a_3d_model_from_a/?utm_source=share&utm_medium=ios_app&utm_name=iossmf) post. This got me really intersted in AI systems that can create 3D models. So after reading the research paper of the PIFu model, I installed it locally on my PC. But to get it all up and running, it took me quiet some time and fixing some bugs etc. But once it was up and running, I really liked the performance and the output of this AI system.
+My first idea was to find some sort of AI to create audio. I didn't find any good AI I wanted to use. But then, randomly while being on reddit, I stumbled upon [this](https://www.reddit.com/r/blender/comments/11jedrn/using_pifuhd_ai_to_generate_a_3d_model_from_a/?utm_source=share&utm_medium=ios_app&utm_name=iossmf) post. This got me really interested in AI systems that can create 3D models. So after reading the research paper of the PIFu model, I installed it locally on my PC. But to get it all up and running, it took me quiet some time and fixing some bugs etc. But once it was up and running, I really liked the performance and the output of this AI system.
 
-So I got the idea to maybe take this AI, but make it much easier to use. I then found a [hugging-face space](https://huggingface.co/spaces/radames/PIFu-Clothed-Human-Digitization) that was running this excat model. Here, you can simply upload an image, and then download the 3D model. This already was much more user friendly. But I wanted to make it even more simple. So I decided to create a Blender-Addon, so you can use the AI without ever leaving the Blender software.
+So I got the idea to maybe take this AI, but make it much easier to use. I then found a [hugging-face space](https://huggingface.co/spaces/radames/PIFu-Clothed-Human-Digitization) that was running this exact model. Here, you can simply upload an image, and then download the 3D model. This already was much more user friendly. But I wanted to make it even more simple. So I decided to create a Blender-Addon, so you can use the AI without ever leaving the Blender software.
 
 ### AI
 As mentioned before, getting the AI to run on the local machine can be tricky, so its not really suitable for a Bledner Add-on. This is why I needed some sort of API now. So, I duplicated the hugging-face space. Then I tried to enable the API, but it didn't seem to work. To my surprise, there wasn't much helpful documentation on why this didn't work. i then by accident saw on another space that someone once made a commit called `enable API`. There, the person also updated the gradio-version. So I did the same, and the API became available!
 
 ### Blender Addon
-To create a Blender Add-on, you can open the **scripting** window. From there, you can create a new script. Then, to have some sort of grounds to base your add-on on, you can go to **Templates** and then open any of those examples. (I used the **addon_add_object.py**) Here, we can see the main structre of a Belder Add-on.
-The first section contains the infos of your Add-on. Those get shown when the users install the add-on in the preferences-window.
+To create a Blender Add-on, you can open the **scripting** window. From there, you can create a new script. Then, to have some sort of grounds to base your add-on on, you can go to **Templates** and then open any of those examples. (I used the **addon_add_object.py**) Here, we can see the main structure of a Belder Add-on.
+The first section contains the info of your Add-on. Those get shown when the users install the add-on in the preferences-window.
 
 ```python
 bl_info = {
@@ -53,7 +53,7 @@ import os
 import base64
 ```
 
-Then, you can define any needed functions. I needed to define 2 functions. The first one is used to downlaod the 3D object file and save it to a temporary folder.
+Then, you can define any needed functions. I needed to define 2 functions. The first one is used to download the 3D object file and save it to a temporary folder.
 ```python
 def download(url: str, dest_folder: str):
     if not os.path.exists(dest_folder):
@@ -74,7 +74,7 @@ def download(url: str, dest_folder: str):
     else:  # HTTP status code 4XX/5XX
         print("Download failed: status code {}\n{}".format(r.status_code, r.text))
 ```
-The second function removes the camera of the imported 3D object. This was only needed because the API returns a GLB file which not only inclued the 3D object, but also a camera.
+The second function removes the camera of the imported 3D object. This was only needed because the API returns a GLB file which not only included the 3D object, but also a camera.
 ```python
 def remove_latest_camera():
     # Get all the cameras in the scene
@@ -90,7 +90,7 @@ def remove_latest_camera():
     # Remove the camera
     bpy.data.objects.remove(latest_camera, do_unlink=True)
 ```
-Now, we have to decale an operation-class. This is used by Blender to declare any functionallity. (In my case, this is used to define the behaviour of a button-press)
+Now, we have to declare an operation-class. This is used by Blender to declare any functionality. (In my case, this is used to define the behaviour of a button-press)
 It needs certain class-variables like the `bl_idname` which is later used to refer to this operator. The most important part of this class will be the `execute` function. This contains all the code that gets executed once the operation is called. (In this case, once the button will be pressed)
 The function reads in the image, converts it to Base64, sends it to the API, then downloads the 3D object, imports it, and finally, removes the temporary files from the system to not create any waste.
 ```python
